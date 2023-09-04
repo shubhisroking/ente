@@ -51,9 +51,9 @@ class _AppUpdateDialogState extends State<AppUpdateDialog> {
         ),
         const Padding(padding: EdgeInsets.all(8)),
         if (changelog.isNotEmpty)
-          const Text(
-            "Changelog",
-            style: TextStyle(
+           Text(
+            context.l10n.changeLog,
+            style: const TextStyle(
               fontSize: 18,
             ),
           ),
@@ -162,17 +162,15 @@ class _ApkDownloaderDialogState extends State<ApkDownloaderDialog> {
 
   Future<void> _downloadApk() async {
     try {
-      if (!File(_saveUrl!).existsSync()) {
-        await Network.instance.getDio().download(
-          widget.versionInfo!.url!,
-          _saveUrl,
-          onReceiveProgress: (count, _) {
-            setState(() {
-              _downloadProgress = count / widget.versionInfo!.size!;
-            });
-          },
-        );
-      }
+      await Network.instance.getDio().download(
+        widget.versionInfo!.url!,
+        _saveUrl,
+        onReceiveProgress: (count, _) {
+          setState(() {
+            _downloadProgress = count / widget.versionInfo!.size!;
+          });
+        },
+      );
       Navigator.of(context, rootNavigator: true).pop('dialog');
       OpenFilex.open(_saveUrl);
     } catch (e) {

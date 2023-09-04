@@ -257,6 +257,7 @@
   "criticalUpdateAvailable": "Critical update available",
   "updateAvailable": "Update available",
   "update": "Update",
+  "changeLog": "Changelog",
   "checking": "Checking...",
   "youAreOnTheLatestVersion": "You are on the latest version",
   "warning": "Warning",
