@@ -236,7 +236,7 @@
   "publicLinkEnabled": "Link público ativado",
   "shareALink": "Compartilhar link",
   "sharedAlbumSectionDescription": "Criar álbuns compartilhados e colaborativos com outros usuários Ente, incluindo usuários em planos gratuitos.",
-  "shareWithPeopleSectionTitle": "{numberOfPeople, plural, one {}=0 {Compartilhe com pessoas específicas} =1 {Compartilhado com 1 pessoa} other {Compartilhado com {numberOfPeople} pessoas}}",
+  "shareWithPeopleSectionTitle": "{numberOfPeople, plural, =0 {Compartilhe com pessoas específicas} =1 {Compartilhado com 1 pessoa} other {Compartilhado com {numberOfPeople} pessoas}}",
   "@shareWithPeopleSectionTitle": {
     "placeholders": {
       "numberOfPeople": {
@@ -1188,6 +1188,10 @@
   "changeLocationOfSelectedItems": "Alterar o local dos itens selecionados?",
   "editsToLocationWillOnlyBeSeenWithinEnte": "Edições para local só serão vistas dentro do Ente",
   "cleanUncategorized": "Limpar Sem Categoria",
+  "waitingForBrowserRequest": "Aguardando solicitação do navegador...",
+  "launchPasskeyUrlAgain": "Iniciar a URL de chave de acesso novamente",
+  "passkey": "Chave de acesso",
+  "passkeyAuthTitle": "Autenticação via Chave de acesso",
   "playOnTv": "Reproduzir álbum na TV",
   "pair": "Parear",
   "deviceNotFound": "Dispositivo não encontrado",
