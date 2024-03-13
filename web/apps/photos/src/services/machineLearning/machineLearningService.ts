@@ -38,24 +38,11 @@ import ReaderService from "./readerService";
 
 class MachineLearningService {
     private initialized = false;
-    // private faceDetectionService: FaceDetectionService;
-    // private faceLandmarkService: FAPIFaceLandmarksService;
-    // private faceAlignmentService: FaceAlignmentService;
-    // private faceEmbeddingService: FaceEmbeddingService;
-    // private faceEmbeddingService: FAPIFaceEmbeddingService;
-    // private clusteringService: ClusteringService;
 
     private localSyncContext: Promise<MLSyncContext>;
     private syncContext: Promise<MLSyncContext>;
 
     public constructor() {
-        // setWasmPaths('/js/tfjs/');
-        // this.faceDetectionService = new TFJSFaceDetectionService();
-        // this.faceLandmarkService = new FAPIFaceLandmarksService();
-        // this.faceAlignmentService = new ArcfaceAlignmentService();
-        // this.faceEmbeddingService = new TFJSFaceEmbeddingService();
-        // this.faceEmbeddingService = new FAPIFaceEmbeddingService();
-        // this.clusteringService = new ClusteringService();
     }
 
     public async sync(token: string, userID: number): Promise<MLSyncResult> {
@@ -64,11 +51,6 @@ class MachineLearningService {
         }
 
         await downloadManager.init(APPS.PHOTOS, { token });
-        // await this.init();
-
-        // Used to debug tf memory leak, all tf memory
-        // needs to be cleaned using tf.dispose or tf.tidy
-        // tf.engine().startScope();
 
         const syncContext = await this.getSyncContext(token, userID);
 
@@ -108,8 +90,6 @@ class MachineLearningService {
             tsne: syncContext.tsne,
             error: syncContext.error,
         };
-        // addLogLine('[MLService] sync results: ', mlSyncResult);
-
         // await syncContext.dispose();
         addLogLine("Final TF Memory stats: ", JSON.stringify(tf.memory()));
 
@@ -197,31 +177,6 @@ class MachineLearningService {
 
         addLogLine("syncLocalFiles", Date.now() - startTime, "ms");
     }
-
-    // TODO: not required if ml data is stored as field inside ente file object
-    // remove, not required now
-    // it removes ml data for files in trash, they will be resynced if restored
-    // private async syncRemovedFiles(syncContext: MLSyncContext) {
-    //     const db = await mlIDbStorage.db;
-    //     const localFileIdMap = await this.getLocalFilesMap(syncContext);
-
-    //     const removedFileIds: Array<string> = [];
-    //     await mlFilesStore.iterate((file, idStr) => {
-    //         if (!localFileIdMap.has(parseInt(idStr))) {
-    //             removedFileIds.push(idStr);
-    //         }
-    //     });
-
-    //     if (removedFileIds.length < 1) {
-    //         return;
-    //     }
-
-    //     removedFileIds.forEach((fileId) => mlFilesStore.removeItem(fileId));
-    //     addLogLine('Removed local file ids: ', removedFileIds);
-
-    //     await incrementIndexVersion('files');
-    // }
-
     private async getOutOfSyncFiles(syncContext: MLSyncContext) {
         const startTime = Date.now();
         const fileIds = await mlIDbStorage.getFileIds(
@@ -264,24 +219,24 @@ class MachineLearningService {
         return [...uniqueFiles.values()];
     }
 
-    // private async getOutOfSyncFilesNoIdx(syncContext: MLSyncContext) {
-    //     const existingFilesMap = await this.getLocalFilesMap(syncContext);
-    //     // existingFiles.sort(
-    //     //     (a, b) => b.metadata.creationTime - a.metadata.creationTime
-    //     // );
-    //     console.time('getUniqueOutOfSyncFiles');
-    //     syncContext.outOfSyncFiles = await this.getUniqueOutOfSyncFilesNoIdx(
-    //         syncContext,
-    //         [...existingFilesMap.values()]
-    //     );
-    //     addLogLine('getUniqueOutOfSyncFiles');
-    //     addLogLine(
-    //         'Got unique outOfSyncFiles: ',
-    //         syncContext.outOfSyncFiles.length,
-    //         'for batchSize: ',
-    //         syncContext.config.batchSize
-    //     );
-    // }
+    private async getOutOfSyncFilesNoIdx(syncContext: MLSyncContext) {
+        const existingFilesMap = await this.getLocalFilesMap(syncContext);
+        // existingFiles.sort(
+        //     (a, b) => b.metadata.creationTime - a.metadata.creationTime
+        // );
+        console.time('getUniqueOutOfSyncFiles');
+        syncContext.outOfSyncFiles = await this.getUniqueOutOfSyncFilesNoIdx(
+            syncContext,
+            [...existingFilesMap.values()]
+        );
+        addLogLine('getUniqueOutOfSyncFiles');
+        addLogLine(
+            'Got unique outOfSyncFiles: ',
+            syncContext.outOfSyncFiles.length,
+            'for batchSize: ',
+            syncContext.config.batchSize
+        );
+    }
 
     private async syncFiles(syncContext: MLSyncContext) {
         try {
