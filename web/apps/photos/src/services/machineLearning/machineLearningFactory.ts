@@ -39,7 +39,7 @@ export class MLFactory {
     public static getFaceDetectionService(
         method: FaceDetectionMethod,
     ): FaceDetectionService {
-        if (method === 'YoloFace') {
+        if (method === "YoloFace") {
             return yoloFaceDetectionService;
         }
 
@@ -212,7 +212,7 @@ export class LocalMLSyncContext implements MLSyncContext {
 
     public async getEnteWorker(id: number): Promise<any> {
         const wid = id % this.enteWorkers.length;
-        console.log('getEnteWorker: ', id, wid);
+        console.log("getEnteWorker: ", id, wid);
         if (!this.enteWorkers[wid]) {
             this.comlinkCryptoWorker[wid] = getDedicatedCryptoWorker();
             this.enteWorkers[wid] = await this.comlinkCryptoWorker[wid].remote;

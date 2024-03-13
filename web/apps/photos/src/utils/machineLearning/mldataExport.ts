@@ -56,7 +56,7 @@ export const onExportMLData = async () => {
             types: [
                 {
                     accept: {
-                        'application/zip': ['.zip'],
+                        "application/zip": [".zip"],
                     },
                 },
             ],
@@ -70,7 +70,7 @@ export const onExportMLData = async () => {
         const mlDataZipWritable = await mlDataZipHandle.createWritable();
         await exportMlData(mlDataZipWritable);
     } catch (e) {
-        console.error('Error while exporting: ', e);
+        console.error("Error while exporting: ", e);
     }
 };
 export async function exportMlData(
@@ -129,15 +129,15 @@ async function exportMlDataToZipWriter(zipWriter: zip.ZipWriter) {
                     await zipWriter.add(
                         `caches/${CACHES.FACE_CROPS}${faceCropUrl}`,
                         new zip.BlobReader(blob),
-                        { level: 0 }
+                        { level: 0 },
                     );
                 } catch (e) {
                     console.log(
-                        'Error while adding face crop to zip: ' +
+                        "Error while adding face crop to zip: " +
                             `caches/${CACHES.FACE_CROPS}${faceCropUrl}`,
-                        e
+                        e,
                     );
-                    addLogLine('Error while adding face crop to zip: ', e);
+                    addLogLine("Error while adding face crop to zip: ", e);
                 }
             } else {
                 console.error(

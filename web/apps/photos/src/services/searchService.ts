@@ -338,7 +338,7 @@ function searchFilesByName(searchPhrase: string, files: EnteFile[]) {
     return files.filter(
         (file) =>
             file.id.toString().includes(searchPhrase) ||
-            file.metadata.title.toLowerCase().includes(searchPhrase)
+            file.metadata.title.toLowerCase().includes(searchPhrase),
     );
 }
 

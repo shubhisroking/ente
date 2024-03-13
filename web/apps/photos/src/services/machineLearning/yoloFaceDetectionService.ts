@@ -1,27 +1,27 @@
 import {
+    BLAZEFACE_FACE_SIZE,
+    MAX_FACE_DISTANCE_PERCENT,
+} from "constants/mlConfig";
+import {
     FaceDetection,
     FaceDetectionMethod,
     FaceDetectionService,
     Versioned,
-} from 'types/machineLearning';
-import { Box, Point } from '../../../thirdparty/face-api/classes';
-import { resizeToSquare } from 'utils/image';
+} from "types/machineLearning";
+import { resizeToSquare } from "utils/image";
+import { newBox } from "utils/machineLearning";
+import { removeDuplicateDetections } from "utils/machineLearning/faceDetection";
 import {
     computeTransformToBox,
     transformBox,
     transformPoints,
-} from 'utils/machineLearning/transform';
-import { newBox } from 'utils/machineLearning';
-import { removeDuplicateDetections } from 'utils/machineLearning/faceDetection';
-import {
-    BLAZEFACE_FACE_SIZE,
-    MAX_FACE_DISTANCE_PERCENT,
-} from 'constants/mlConfig';
+} from "utils/machineLearning/transform";
+import { Box, Point } from "../../../thirdparty/face-api/classes";
 
-import * as ort from 'onnxruntime-web';
-import { env } from 'onnxruntime-web';
+import * as ort from "onnxruntime-web";
+import { env } from "onnxruntime-web";
 
-env.wasm.wasmPaths = '/js/onnx/';
+env.wasm.wasmPaths = "/js/onnx/";
 class YoloFaceDetectionService implements FaceDetectionService {
     private onnxInferenceSession?: ort.InferenceSession;
     public method: Versioned<FaceDetectionMethod>;
@@ -29,24 +29,24 @@ class YoloFaceDetectionService implements FaceDetectionService {
 
     public constructor(desiredFaceSize: number = BLAZEFACE_FACE_SIZE) {
         this.method = {
-            value: 'YoloFace',
+            value: "YoloFace",
             version: 1,
         };
         this.desiredFaceSize = desiredFaceSize;
     }
 
     private async initOnnx() {
-        console.log('start ort');
+        console.log("start ort");
         this.onnxInferenceSession = await ort.InferenceSession.create(
-            '/models/yolo/yolov5s_face_640_640_dynamic.onnx'
+            "/models/yolo/yolov5s_face_640_640_dynamic.onnx",
         );
         const data = new Float32Array(1 * 3 * 640 * 640);
-        const inputTensor = new ort.Tensor('float32', data, [1, 3, 640, 640]);
+        const inputTensor = new ort.Tensor("float32", data, [1, 3, 640, 640]);
         const feeds: Record<string, ort.Tensor> = {};
         const name = this.onnxInferenceSession.inputNames[0];
         feeds[name] = inputTensor;
         await this.onnxInferenceSession.run(feeds);
-        console.log('start end');
+        console.log("start end");
     }
 
     private async getOnnxInferenceSession() {
@@ -60,19 +60,19 @@ class YoloFaceDetectionService implements FaceDetectionService {
         // Create an OffscreenCanvas and set its size
         const offscreenCanvas = new OffscreenCanvas(
             imageBitmap.width,
-            imageBitmap.height
+            imageBitmap.height,
         );
-        const ctx = offscreenCanvas.getContext('2d');
+        const ctx = offscreenCanvas.getContext("2d");
         ctx.drawImage(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.height);
         const imageData = ctx.getImageData(
             0,
             0,
             imageBitmap.width,
-            imageBitmap.height
+            imageBitmap.height,
         );
         const pixelData = imageData.data;
         const data = new Float32Array(
-            1 * 3 * imageBitmap.width * imageBitmap.height
+            1 * 3 * imageBitmap.width * imageBitmap.height,
         );
         // Populate the Float32Array with normalized pixel values
         for (let i = 0; i < pixelData.length; i += 4) {
@@ -93,7 +93,7 @@ class YoloFaceDetectionService implements FaceDetectionService {
     // The rowOutput is a Float32Array of shape [25200, 16], where each row represents a bounding box.
     private getFacesFromYoloOutput(
         rowOutput: Float32Array,
-        minScore: number
+        minScore: number,
     ): Array<FaceDetection> {
         const faces: Array<FaceDetection> = [];
         // iterate over each row
@@ -149,15 +149,15 @@ class YoloFaceDetectionService implements FaceDetectionService {
         const maxFaceDistance = imageBitmap.width * MAX_FACE_DISTANCE_PERCENT;
         const resized = resizeToSquare(imageBitmap, 640);
         const data = this.imageBitmapToTensorData(resized.image).data;
-        const inputTensor = new ort.Tensor('float32', data, [1, 3, 640, 640]);
+        const inputTensor = new ort.Tensor("float32", data, [1, 3, 640, 640]);
         const feeds: Record<string, ort.Tensor> = {};
-        feeds['input'] = inputTensor;
+        feeds["input"] = inputTensor;
         const inferenceSession = await this.getOnnxInferenceSession();
         const runout = await inferenceSession.run(feeds);
         const outputData = runout.output.data;
         const faces = this.getFacesFromYoloOutput(
             outputData as Float32Array,
-            0.7
+            0.7,
         );
         const inBox = newBox(0, 0, resized.width, resized.height);
         const toBox = newBox(0, 0, imageBitmap.width, imageBitmap.height);
@@ -176,7 +176,7 @@ class YoloFaceDetectionService implements FaceDetectionService {
     }
 
     public async detectFaces(
-        imageBitmap: ImageBitmap
+        imageBitmap: ImageBitmap,
     ): Promise<Array<FaceDetection>> {
         // measure time taken
         const facesFromOnnx = await this.estimateOnnx(imageBitmap);

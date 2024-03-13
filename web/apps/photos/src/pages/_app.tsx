@@ -70,6 +70,7 @@ import {
     NotificationAttributes,
     SetNotificationAttributes,
 } from "types/Notification";
+import { runningInChrome } from "utils/common";
 import { isExportInProgress } from "utils/export";
 import {
     getMLSearchConfig,
@@ -80,7 +81,6 @@ import {
     getUpdateReadyToInstallMessage,
 } from "utils/ui";
 import { isInternalUser } from "utils/user";
-import { runningInChrome } from "utils/common";
 
 const redirectMap = new Map([
     [REDIRECTS.ROADMAP, getRoadmapRedirectURL],

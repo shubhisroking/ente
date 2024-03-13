@@ -1,11 +1,11 @@
 import * as tf from "@tensorflow/tfjs-core";
 
-import { DebugInfo } from 'hdbscan';
-import PQueue from 'p-queue';
+import { DebugInfo } from "hdbscan";
+import PQueue from "p-queue";
 
-import { EnteFile } from 'types/file';
-import { Dimensions } from 'types/image';
-import { Box, Point } from '../../../thirdparty/face-api/classes';
+import { EnteFile } from "types/file";
+import { Dimensions } from "types/image";
+import { Box, Point } from "../../../thirdparty/face-api/classes";
 
 export interface MLSyncResult {
     nOutOfSyncFiles: number;
@@ -56,9 +56,9 @@ export declare type Landmark = Point;
 export declare type ImageType = "Original" | "Preview";
 
 export declare type FaceDetectionMethod =
-    | 'BlazeFace'
-    | 'FaceApiSSD'
-    | 'YoloFace';
+    | "BlazeFace"
+    | "FaceApiSSD"
+    | "YoloFace";
 
 export declare type ObjectDetectionMethod = "SSDMobileNetV2";
 

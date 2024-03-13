@@ -1,47 +1,47 @@
-import React, { useState, useEffect, useContext, ChangeEvent } from 'react';
-import { getData, LS_KEYS } from 'utils/storage/localStorage';
-import { useRouter } from 'next/router';
-import { ComlinkWorker } from 'utils/comlink';
-import { AppContext } from 'pages/_app';
-import { PAGES } from 'constants/pages';
-import * as Comlink from 'comlink';
-import { runningInBrowser } from 'utils/common';
-import TFJSImage from './TFJSImage';
+import * as Comlink from "comlink";
+import { PAGES } from "constants/pages";
+import { useRouter } from "next/router";
+import { AppContext } from "pages/_app";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
+import Tree from "react-d3-tree";
+import mlWorkManager from "services/machineLearning/mlWorkManager";
 import {
     Face,
     MLDebugResult,
     MLSyncConfig,
     Person,
-} from 'types/machineLearning';
-import Tree from 'react-d3-tree';
-import MLFileDebugView from './MLFileDebugView';
-import mlWorkManager from 'services/machineLearning/mlWorkManager';
+} from "types/machineLearning";
+import { ComlinkWorker } from "utils/comlink";
+import { runningInBrowser } from "utils/common";
+import { LS_KEYS, getData } from "utils/storage/localStorage";
+import MLFileDebugView from "./MLFileDebugView";
+import TFJSImage from "./TFJSImage";
 // import { getAllFacesMap, mlLibraryStore } from 'utils/storage/mlStorage';
-import { getAllFacesFromMap, getAllPeople } from 'utils/machineLearning';
-import { FaceImagesRow, ImageBlobView, ImageCacheView } from './ImageViews';
-import mlIDbStorage from 'utils/storage/mlIDbStorage';
-import { getFaceCropBlobFromStorage } from 'utils/machineLearning/faceCrop';
-import { PeopleList } from './PeopleList';
-import { styled } from '@mui/material';
+import { styled } from "@mui/material";
+import { getAllFacesFromMap, getAllPeople } from "utils/machineLearning";
+import { getFaceCropBlobFromStorage } from "utils/machineLearning/faceCrop";
+import mlIDbStorage from "utils/storage/mlIDbStorage";
+import { FaceImagesRow, ImageBlobView, ImageCacheView } from "./ImageViews";
+import { PeopleList } from "./PeopleList";
 
-import { RawNodeDatum } from 'react-d3-tree/lib/types/common';
-import { DebugInfo, mstToBinaryTree } from 'hdbscan';
-import { toD3Tree } from 'utils/machineLearning/clustering';
+import { FACE_CROPS_CACHE } from "constants/cache";
+import {
+    DEFAULT_ML_SYNC_CONFIG,
+    DEFAULT_ML_SYNC_JOB_CONFIG,
+} from "constants/machineLearning/config";
+import { DebugInfo, mstToBinaryTree } from "hdbscan";
+import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import { RawNodeDatum } from "react-d3-tree/lib/types/common";
+import { JobConfig } from "types/common/job";
+import { toD3Tree } from "utils/machineLearning/clustering";
 import {
     getMLSyncConfig,
     getMLSyncJobConfig,
     updateMLSyncConfig,
     updateMLSyncJobConfig,
-} from 'utils/machineLearning/config';
-import { Button, Col, Container, Form, Row } from 'react-bootstrap';
-import { JobConfig } from 'types/common/job';
-import { ConfigEditor } from './ConfigEditor';
-import {
-    DEFAULT_ML_SYNC_CONFIG,
-    DEFAULT_ML_SYNC_JOB_CONFIG,
-} from 'constants/machineLearning/config';
-import { exportMlData, importMlData } from 'utils/machineLearning/mldataExport';
-import { FACE_CROPS_CACHE } from 'constants/cache';
+} from "utils/machineLearning/config";
+import { exportMlData, importMlData } from "utils/machineLearning/mldataExport";
+import { ConfigEditor } from "./ConfigEditor";
 
 interface TSNEProps {
     mlResult: MLDebugResult;
@@ -95,25 +95,28 @@ function TSNEPlot(props: TSNEProps) {
     return (
         <svg
             width={props.mlResult.tsne.width + 40}
-            height={props.mlResult.tsne.height + 40}>
+            height={props.mlResult.tsne.height + 40}
+        >
             {props.mlResult.tsne.dataset.map((data, i) => (
                 <foreignObject
                     key={i}
                     x={data.x - 20}
                     y={data.y - 20}
                     width={40}
-                    height={40}>
+                    height={40}
+                >
                     <TFJSImage
                         faceImage={props.mlResult.allFaces[i]?.faceImage}
                         width={40}
-                        height={40}></TFJSImage>
+                        height={40}
+                    ></TFJSImage>
                 </foreignObject>
             ))}
         </svg>
     );
 }
 
-const D3ImageContainer = styled('div')`
+const D3ImageContainer = styled("div")`
     & > img {
         width: 100%;
         height: 100%;
@@ -127,10 +130,11 @@ const renderForeignObjectNode = ({ nodeDatum, foreignObjectProps }) => (
         <foreignObject {...foreignObjectProps}>
             <div
                 style={{
-                    border: '1px solid black',
-                    backgroundColor: '#dedede',
-                }}>
-                <h3 style={{ textAlign: 'center', color: 'black' }}>
+                    border: "1px solid black",
+                    backgroundColor: "#dedede",
+                }}
+            >
+                <h3 style={{ textAlign: "center", color: "black" }}>
                     {nodeDatum.name}
                 </h3>
                 {!nodeDatum.children && nodeDatum.name && (
@@ -197,15 +201,15 @@ export default function MLDebug() {
 
     const getDedicatedMLWorker = (): ComlinkWorker => {
         if (token) {
-            addLogLine('Toen present');
+            addLogLine("Toen present");
         }
         if (runningInBrowser()) {
-            addLogLine('initiating worker');
+            addLogLine("initiating worker");
             const worker = new Worker(
-                new URL('worker/machineLearning.worker', import.meta.url),
-                { name: 'ml-worker' }
+                new URL("worker/machineLearning.worker", import.meta.url),
+                { name: "ml-worker" },
             );
-            addLogLine('initiated worker');
+            addLogLine("initiated worker");
             const comlink = Comlink.wrap(worker);
             return { comlink, worker };
         }
@@ -226,7 +230,7 @@ export default function MLDebug() {
         try {
             if (!MLWorker) {
                 MLWorker = getDedicatedMLWorker();
-                addLogLine('initiated MLWorker');
+                addLogLine("initiated MLWorker");
             }
             const mlWorker = await new MLWorker.comlink();
             const result = await mlWorker.sync(
@@ -235,7 +239,7 @@ export default function MLDebug() {
                 // minClusterSize,
                 // minFaceSize,
                 // batchSize,
-                maxFaceDistance
+                maxFaceDistance,
             );
             setMlResult(result);
         } catch (e) {
@@ -266,7 +270,7 @@ export default function MLDebug() {
                 types: [
                     {
                         accept: {
-                            'application/zip': ['.zip'],
+                            "application/zip": [".zip"],
                         },
                     },
                 ],
@@ -280,7 +284,7 @@ export default function MLDebug() {
             const mlDataZipWritable = await mlDataZipHandle.createWritable();
             await exportMlData(mlDataZipWritable);
         } catch (e) {
-            console.error('Error while exporting: ', e);
+            console.error("Error while exporting: ", e);
         }
     };
 
@@ -291,7 +295,7 @@ export default function MLDebug() {
                 types: [
                     {
                         accept: {
-                            'application/zip': ['.zip'],
+                            "application/zip": [".zip"],
                         },
                     },
                 ],
@@ -305,12 +309,12 @@ export default function MLDebug() {
             const mlDataZipFile = await mlDataZipHandle.getFile();
             await importMlData(mlDataZipFile);
         } catch (e) {
-            console.error('Error while importing: ', e);
+            console.error("Error while importing: ", e);
         }
     };
 
     const onClearPeopleIndex = async () => {
-        mlIDbStorage.setIndexVersion('people', 0);
+        mlIDbStorage.setIndexVersion("people", 0);
     };
 
     const onDebugFile = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -341,7 +345,7 @@ export default function MLDebug() {
         // can enable once toD3Tree is non recursive
         // and only important part of tree is retrieved
         const clusteringDebugInfo: DebugInfo =
-            mlLibraryData?.faceClusteringResults['debugInfo'];
+            mlLibraryData?.faceClusteringResults["debugInfo"];
         if (allFaces.length <= 1000 && clusteringDebugInfo) {
             const mstBinaryTree = mstToBinaryTree(clusteringDebugInfo.mst);
             const d3Tree = toD3Tree(mstBinaryTree, allFaces);
@@ -350,14 +354,14 @@ export default function MLDebug() {
     };
 
     const showFilteredFaces = async () => {
-        addLogLine('Filtering with: ', minProbability, maxProbability);
+        addLogLine("Filtering with: ", minProbability, maxProbability);
         const allFacesMap = await mlIDbStorage.getAllFacesMap();
         const allFaces = getAllFacesFromMap(allFacesMap);
         const filteredFaces = allFaces
             .filter(
                 (f) =>
                     f.detection.probability >= minProbability &&
-                    f.detection.probability <= maxProbability
+                    f.detection.probability <= maxProbability,
             )
             .slice(0, 200);
         setFilteredFaces(await getFaceCrops(filteredFaces));
@@ -389,7 +393,8 @@ export default function MLDebug() {
                         }
                         setConfig={(mlSyncConfig) =>
                             updateMLSyncConfig(mlSyncConfig as MLSyncConfig)
-                        }></ConfigEditor>
+                        }
+                    ></ConfigEditor>
                 </Col>
 
                 <Col>
@@ -401,7 +406,8 @@ export default function MLDebug() {
                         }
                         setConfig={(mlSyncJobConfig) =>
                             updateMLSyncJobConfig(mlSyncJobConfig as JobConfig)
-                        }></ConfigEditor>
+                        }
+                    ></ConfigEditor>
                 </Col>
             </Row>
 
@@ -486,7 +492,7 @@ export default function MLDebug() {
 
             <hr />
             <Row>Show Faces based on detection probability:</Row>
-            <Row style={{ alignItems: 'end' }}>
+            <Row style={{ alignItems: "end" }}>
                 <Col>
                     <Form.Label htmlFor="minProbability">Min: </Form.Label>
                     <Form.Control
@@ -495,7 +501,7 @@ export default function MLDebug() {
                         placeholder="e.g. 70"
                         onChange={(e) =>
                             setMinProbability(
-                                (parseFloat(e.target.value) || 0) / 100
+                                (parseFloat(e.target.value) || 0) / 100,
                             )
                         }
                     />
@@ -508,7 +514,7 @@ export default function MLDebug() {
                         placeholder="e.g. 80"
                         onChange={(e) =>
                             setMaxProbability(
-                                (parseFloat(e.target.value) || 100) / 100
+                                (parseFloat(e.target.value) || 100) / 100,
                             )
                         }
                     />
@@ -534,14 +540,15 @@ export default function MLDebug() {
             <div
                 id="treeWrapper"
                 style={{
-                    width: '100%',
-                    height: '50em',
-                    backgroundColor: 'white',
-                }}>
+                    width: "100%",
+                    height: "50em",
+                    backgroundColor: "white",
+                }}
+            >
                 {mstD3Tree && (
                     <Tree
                         data={mstD3Tree}
-                        orientation={'vertical'}
+                        orientation={"vertical"}
                         nodeSize={nodeSize}
                         zoom={0.25}
                         renderCustomNodeElement={(rd3tProps) =>
@@ -560,11 +567,12 @@ export default function MLDebug() {
                 <div
                     id="tsneWrapper"
                     style={{
-                        width: '840px',
-                        height: '840px',
-                        backgroundColor: 'white',
-                        overflow: 'auto',
-                    }}>
+                        width: "840px",
+                        height: "840px",
+                        backgroundColor: "white",
+                        overflow: "auto",
+                    }}
+                >
                     {mlResult.tsne && <TSNEPlot mlResult={mlResult} />}
                 </div>
             </Row>

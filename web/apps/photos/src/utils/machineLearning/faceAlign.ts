@@ -1,7 +1,14 @@
 import * as tf from "@tensorflow/tfjs-core";
 import { Matrix, inverse } from "ml-matrix";
 import { getSimilarityTransformation } from "similarity-transformation";
+import { Dimensions } from "types/image";
 import { FaceAlignment, FaceDetection } from "types/machineLearning";
+import {
+    ARCFACE_LANDMARKS,
+    ARCFACE_LANDMARKS_FACE_SIZE,
+    ARC_FACE_5_LANDMARKS,
+} from "types/machineLearning/archface";
+import { cropWithRotation, transform } from "utils/image";
 import {
     computeRotation,
     enlargeBox,
@@ -9,19 +16,12 @@ import {
     getBoxCenter,
     getBoxCenterPt,
     toTensor4D,
-} from '.';
-import { cropWithRotation, transform } from 'utils/image';
-import {
-    ARCFACE_LANDMARKS,
-    ARCFACE_LANDMARKS_FACE_SIZE,
-    ARC_FACE_5_LANDMARKS,
-} from 'types/machineLearning/archface';
-import { Box, Point } from '../../../thirdparty/face-api/classes';
-import { Dimensions } from 'types/image';
+} from ".";
+import { Box, Point } from "../../../thirdparty/face-api/classes";
 
 export function normalizeLandmarks(
     landmarks: Array<[number, number]>,
-    faceSize: number
+    faceSize: number,
 ): Array<[number, number]> {
     return landmarks.map((landmark) =>
         landmark.map((p) => p / faceSize),
@@ -80,8 +80,8 @@ export function getArcfaceAlignment(
         faceDetection,
         normalizeLandmarks(
             landmarkCount === 5 ? ARC_FACE_5_LANDMARKS : ARCFACE_LANDMARKS,
-            ARCFACE_LANDMARKS_FACE_SIZE
-        )
+            ARCFACE_LANDMARKS_FACE_SIZE,
+        ),
     );
 }
 

@@ -1,24 +1,22 @@
-import React, { useEffect, useRef, useState } from 'react';
-import '@tensorflow/tfjs-backend-webgl';
-import '@tensorflow/tfjs-backend-cpu';
-import { AlignedFace, FaceCrop, ObjectDetection } from 'types/machineLearning';
 import { addLogLine } from "@ente/shared/logging";
 import "@tensorflow/tfjs-backend-cpu";
 import "@tensorflow/tfjs-backend-webgl";
+import { DEFAULT_ML_SYNC_CONFIG } from "constants/mlConfig";
+import { useEffect, useRef, useState } from "react";
 import arcfaceAlignmentService from "services/machineLearning/arcfaceAlignmentService";
 import arcfaceCropService from "services/machineLearning/arcfaceCropService";
+import imageSceneService from "services/machineLearning/imageSceneService";
+import ssdMobileNetV2Service from "services/machineLearning/ssdMobileNetV2Service";
+import yoloFaceDetectionService from "services/machineLearning/yoloFaceDetectionService";
+import { AlignedFace, FaceCrop, ObjectDetection } from "types/machineLearning";
 import { getMLSyncConfig } from "utils/machineLearning/config";
 import {
     getAlignedFaceBox,
     ibExtractFaceImage,
     ibExtractFaceImageUsingTransform,
-} from 'utils/machineLearning/faceAlign';
-import { ibExtractFaceImageFromCrop } from 'utils/machineLearning/faceCrop';
-import { FaceCropsRow, FaceImagesRow, ImageBitmapView } from './ImageViews';
-import ssdMobileNetV2Service from 'services/machineLearning/ssdMobileNetV2Service';
-import { DEFAULT_ML_SYNC_CONFIG } from 'constants/mlConfig';
-import imageSceneService from 'services/machineLearning/imageSceneService';
-import yoloFaceDetectionService from 'services/machineLearning/yoloFaceDetectionService';
+} from "utils/machineLearning/faceAlign";
+import { ibExtractFaceImageFromCrop } from "utils/machineLearning/faceCrop";
+import { FaceCropsRow, FaceImagesRow, ImageBitmapView } from "./ImageViews";
 
 interface MLFileDebugViewProps {
     file: File;
@@ -93,10 +91,9 @@ export default function MLFileDebugView(props: MLFileDebugViewProps) {
         const loadFile = async () => {
             // TODO: go through worker for these apis, to not include ml code in main bundle
             const imageBitmap = await createImageBitmap(props.file);
-            const faceDetections = await yoloFaceDetectionService.detectFaces(
-                imageBitmap
-            );
-            addLogLine('detectedFaces: ', faceDetections.length);
+            const faceDetections =
+                await yoloFaceDetectionService.detectFaces(imageBitmap);
+            addLogLine("detectedFaces: ", faceDetections.length);
 
             const objectDetections = await ssdMobileNetV2Service.detectObjects(
                 imageBitmap,

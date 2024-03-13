@@ -37,7 +37,7 @@ export function formatDate(date: number | Date) {
         return [dateTimeFullFormatter1, dateTimeFormat2]
             .filter((f) => !!f)
             .map((f) => f.format(date))
-            .join(' ');
+            .join(" ");
     } catch (e) {
         // return current date
         return new Date().toLocaleDateString();
