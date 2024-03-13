@@ -28,19 +28,19 @@ import { getConcurrency } from "utils/common/concurrency";
 import { logQueueStats } from "utils/machineLearning";
 import arcfaceAlignmentService from "./arcfaceAlignmentService";
 import arcfaceCropService from "./arcfaceCropService";
-import blazeFaceDetectionService from "./blazeFaceDetectionService";
 import dbscanClusteringService from "./dbscanClusteringService";
 import hdbscanClusteringService from "./hdbscanClusteringService";
 import imageSceneService from "./imageSceneService";
 import mobileFaceNetEmbeddingService from "./mobileFaceNetEmbeddingService";
 import ssdMobileNetV2Service from "./ssdMobileNetV2Service";
+import yoloFaceDetectionService from "./yoloFaceDetectionService";
 
 export class MLFactory {
     public static getFaceDetectionService(
         method: FaceDetectionMethod,
     ): FaceDetectionService {
-        if (method === "BlazeFace") {
-            return blazeFaceDetectionService;
+        if (method === 'YoloFace') {
+            return yoloFaceDetectionService;
         }
 
         throw Error("Unknon face detection method: " + method);
@@ -196,7 +196,7 @@ export class LocalMLSyncContext implements MLSyncContext {
         this.nSyncedFiles = 0;
         this.nSyncedFaces = 0;
 
-        this.concurrency = concurrency || getConcurrency();
+        this.concurrency = concurrency ?? getConcurrency();
 
         addLogLine("Using concurrency: ", this.concurrency);
         // timeout is added on downloads
@@ -212,6 +212,7 @@ export class LocalMLSyncContext implements MLSyncContext {
 
     public async getEnteWorker(id: number): Promise<any> {
         const wid = id % this.enteWorkers.length;
+        console.log('getEnteWorker: ', id, wid);
         if (!this.enteWorkers[wid]) {
             this.comlinkCryptoWorker[wid] = getDedicatedCryptoWorker();
             this.enteWorkers[wid] = await this.comlinkCryptoWorker[wid].remote;

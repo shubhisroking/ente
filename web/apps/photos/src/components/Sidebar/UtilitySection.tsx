@@ -11,18 +11,19 @@ import TwoFactorModal from "components/TwoFactor/Modal";
 import { useRouter } from "next/router";
 import { AppContext } from "pages/_app";
 // import mlIDbStorage from 'utils/storage/mlIDbStorage';
-import { APPS, CLIENT_PACKAGE_NAMES } from "@ente/shared/apps/constants";
-import ThemeSwitcher from "@ente/shared/components/ThemeSwitcher";
-import { getAccountsURL } from "@ente/shared/network/api";
-import { logError } from "@ente/shared/sentry";
-import { THEME_COLOR } from "@ente/shared/themes/constants";
-import { EnteMenuItem } from "components/Menu/EnteMenuItem";
-import WatchFolder from "components/WatchFolder";
-import isElectron from "is-electron";
-import { getAccountsToken } from "services/userService";
-import { getDownloadAppMessage } from "utils/ui";
-import { isInternalUser } from "utils/user";
-import Preferences from "./Preferences";
+import { APPS, CLIENT_PACKAGE_NAMES } from '@ente/shared/apps/constants';
+import ThemeSwitcher from '@ente/shared/components/ThemeSwitcher';
+import { getAccountsURL } from '@ente/shared/network/api';
+import { logError } from '@ente/shared/sentry';
+import { THEME_COLOR } from '@ente/shared/themes/constants';
+import { EnteMenuItem } from 'components/Menu/EnteMenuItem';
+import WatchFolder from 'components/WatchFolder';
+import isElectron from 'is-electron';
+import { getAccountsToken } from 'services/userService';
+import { getDownloadAppMessage } from 'utils/ui';
+import { isInternalUser } from 'utils/user';
+import Preferences from './Preferences';
+import { onExportMLData } from 'utils/machineLearning/mldataExport';
 
 export default function UtilitySection({ closeSidebar }) {
     const router = useRouter();
@@ -67,6 +68,8 @@ export default function UtilitySection({ closeSidebar }) {
         closeSidebar();
         router.push(PAGES.CHANGE_EMAIL);
     };
+
+    const exportMLData = () => onExportMLData();
 
     const redirectToAccountsPage = async () => {
         closeSidebar();
@@ -158,6 +161,12 @@ export default function UtilitySection({ closeSidebar }) {
                 variant="secondary"
                 onClick={redirectToDeduplicatePage}
                 label={t("DEDUPLICATE_FILES")}
+            />
+
+            <EnteMenuItem
+                variant="secondary"
+                onClick={exportMLData}
+                label={t('EXPORT_ML_DATA')}
             />
 
             <EnteMenuItem

@@ -9,8 +9,8 @@ import isElectron from "is-electron";
 
 export function canEnableMlSearch(): boolean {
     // check if is chrome or ente desktop
-    if (!runningInChrome(false) && !isElectron()) {
-        addLogLine("Not running in Chrome Desktop or Ente Desktop App");
+    if (!runningInChrome() && !isElectron()) {
+        addLogLine('Not running in Chrome Desktop or Ente Desktop App');
         return false;
     }
 

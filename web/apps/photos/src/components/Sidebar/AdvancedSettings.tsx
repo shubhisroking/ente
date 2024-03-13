@@ -8,15 +8,18 @@ import Titlebar from "components/Titlebar";
 import { t } from "i18next";
 import { useContext, useEffect, useState } from "react";
 
-import { VerticallyCenteredFlex } from "@ente/shared/components/Container";
-import { logError } from "@ente/shared/sentry";
-import { EnteMenuItem } from "components/Menu/EnteMenuItem";
-import { MenuItemGroup } from "components/Menu/MenuItemGroup";
-import isElectron from "is-electron";
-import { AppContext } from "pages/_app";
-import { ClipExtractionStatus, ClipService } from "services/clipService";
-import { formatNumber } from "utils/number/format";
-import CacheDirectory from "./Preferences/CacheDirectory";
+import { EnteMenuItem } from 'components/Menu/EnteMenuItem';
+import { MenuItemGroup } from 'components/Menu/MenuItemGroup';
+import isElectron from 'is-electron';
+import { logError } from '@ente/shared/sentry';
+import { AppContext } from 'pages/_app';
+import { ClipService } from 'services/clipService';
+import { VerticallyCenteredFlex } from '@ente/shared/components/Container';
+import { ClipExtractionStatus } from 'services/clipService';
+import { formatNumber } from 'utils/number/format';
+import { isInternalUser } from 'utils/user';
+import { runningInChrome } from 'utils/common';
+import CacheDirectory from './Preferences/CacheDirectory';
 
 export default function AdvancedSettings({ open, onClose, onRootClose }) {
     const appContext = useContext(AppContext);
@@ -76,7 +79,8 @@ export default function AdvancedSettings({ open, onClose, onRootClose }) {
 
                 <Box px={"8px"}>
                     <Stack py="20px" spacing="24px">
-                        {isElectron() && (
+                        {(isElectron() ||
+                            (isInternalUser() && runningInChrome())) && (
                             <>
                                 <CacheDirectory />
                                 <Box>

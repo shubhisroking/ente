@@ -381,6 +381,11 @@ class MachineLearningService {
         textDetectionTimeoutIndex?: number,
     ): Promise<MlFileData> {
         try {
+            console.log(
+                'Start index for ',
+                enteFile.title ?? 'no title',
+                enteFile.id
+            );
             const mlFileData = await this.syncFile(
                 syncContext,
                 enteFile,
@@ -417,6 +422,12 @@ class MachineLearningService {
             await this.persistMLFileSyncError(syncContext, enteFile, error);
             syncContext.nSyncedFiles += 1;
         } finally {
+            console.log(
+                'done index for ',
+                enteFile.title ?? 'no title',
+                enteFile.id
+            );
+            // addLogLine('TF Memory stats: ', JSON.stringify(tf.memory()));
             addLogLine("TF Memory stats: ", JSON.stringify(tf.memory()));
         }
     }
@@ -428,6 +439,7 @@ class MachineLearningService {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         textDetectionTimeoutIndex?: number,
     ) {
+        console.log('Syncing for file' + enteFile.title);
         const fileContext: MLSyncFileContext = { enteFile, localFile };
         const oldMlFile =
             (fileContext.oldMlFile = await this.getMLFileData(enteFile.id)) ??
@@ -455,10 +467,10 @@ class MachineLearningService {
             // );
             await Promise.all([
                 this.syncFaceDetections(syncContext, fileContext),
-                ObjectService.syncFileObjectDetections(
-                    syncContext,
-                    fileContext,
-                ),
+                // ObjectService.syncFileObjectDetections(
+                //     syncContext,
+                //     fileContext
+                // ),
                 // TextService.syncFileTextDetections(
                 //     syncContext,
                 //     fileContext,

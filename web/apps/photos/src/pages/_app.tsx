@@ -79,6 +79,8 @@ import {
     getUpdateAvailableForDownloadMessage,
     getUpdateReadyToInstallMessage,
 } from "utils/ui";
+import { isInternalUser } from "utils/user";
+import { runningInChrome } from "utils/common";
 
 const redirectMap = new Map([
     [REDIRECTS.ROADMAP, getRoadmapRedirectURL],
@@ -198,7 +200,7 @@ export default function App(props: EnteAppProps) {
     }, []);
 
     useEffect(() => {
-        if (!isElectron()) {
+        if (!(isElectron() || (isInternalUser() && runningInChrome()))) {
             return;
         }
         const loadMlSearchState = async () => {
